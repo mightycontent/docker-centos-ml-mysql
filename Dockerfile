@@ -4,7 +4,7 @@ MAINTAINER Michael Fishkow
 
 #update yum repository and install openssh server
 RUN yum update -y && \
-   	yum install -y openssh-server
+   	yum install openssh-server java-1.7.0-openjdk-devel net-tools tar wget unzip -y
  
 #generate ssh key
 RUN ssh-keygen -q -N "" -t dsa -f /etc/ssh/ssh_host_dsa_key && \
@@ -16,19 +16,38 @@ RUN ssh-keygen -q -N "" -t dsa -f /etc/ssh/ssh_host_dsa_key && \
 RUN echo 'root:123456' | chpasswd
  
 WORKDIR /tmp
-ADD build-source/MarkLogic-7.0-4.3.x86_64.rpm /tmp/MarkLogic-7.0-4.3.x86_64.rpm
+ADD tmp/MarkLogic-7.0-4.3.x86_64.rpm /tmp/MarkLogic-7.0-4.3.x86_64.rpm
 # RUN curl -k -L -O https://www.dropbox.com/s/f4107q87gub1rcm/MarkLogic-7.0-4.3.x86_64.rpm?dl=0
 # RUN mv MarkLogic-7.0-4.3.x86_64.rpm?dl=0 MarkLogic-7.0-4.3.x86_64.rpm
 RUN yum -y install /tmp/MarkLogic-7.0-4.3.x86_64.rpm
 RUN rm /tmp/MarkLogic-7.0-4.3.x86_64.rpm
+
+WORKDIR /tmp
+# installs from mysql public repo
+ADD tmp/mysql-community-release-el6-5.noarch.rpm /tmp/mysql-community-release-el6-5.noarch.rpm
+    yum localinstall mysql-community-release-el6-5.noarch.rpm -y && \
+#    yum install mysql-community-server -y && \
+    rm /tmp/mysql-community-release-el6-5.noarch.rpm && \
+    yum clean all
+
 # Setup supervisor
 ADD https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py /tmp/ez_setup.py
 RUN python /tmp/ez_setup.py
 RUN easy_install supervisor
 ADD supervisord.conf /etc/supervisord.conf
+
+
+ENV PATH $PATH:/usr/local/mysql/bin:/usr/local/mysql/scripts
+
+WORKDIR /usr/local/mysql
+VOLUME /var/lib/mysql
  
 WORKDIR /
-# Expose MarkLogic admin
-EXPOSE 2022 8000 8001 8002
+# Expose Ports
+#   SSH 2022
+#   MarkLogic 8000 8001 8002
+#   Mysql 3306
+EXPOSE 2022 3306 8000 8001 8002
+
 # Run Supervisor
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

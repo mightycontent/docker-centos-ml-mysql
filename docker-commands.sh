@@ -6,10 +6,11 @@
 # build-source-dir
 ##############################
 # Since Mark Logic rpm requires registration to download, this script assumes that you have already downloaed file:
-# MarkLogic-7.0-4.3.x86_64.rpm and saved it to a directory named build-source-dir
+# MarkLogic-7.0-4.3.x86_64.rpm and saved it to the build source directory path that is passed in are to this script
+# docker-commands.sh build-source-dir
 buildSourceDir=$1
 
-echo "Using ${buildSourceDir:=build-source}"
+echo "Using ${buildSourceDir:=$HOME/build-source}"
 
 if [ -d "$buildSourceDir" ]
 then
@@ -29,17 +30,23 @@ else
     exit 1
 fi
 
-# Download Dockerfile - you might need to update the url
-#curl -k -L -O https://gist.githubusercontent.com/rlouapre/39f3cf793f27895ae8d2/raw/60679c9472bc50c0e72e920eb80dfca066d99463/Dockerfilelocal
+# if you don't have the mysql rpm, then get it
+# wget http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm
+if [  ! -e "$buildSourceDir/mysql-community-release-el6-5.noarch.rpm" ]
+then
+    wget http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm -P "$buildSourceDir"
+fi
 
-# Download supervisord.conf - you might need to update the url
-#curl -k -L -O https://gist.githubusercontent.com/rlouapre/39f3cf793f27895ae8d2/raw/cbfbe33c5c5bf23734852560640ffa68cbebeb50/supervisord.conf
-
-# Download locally MarkLogic-7.0-4.x86_64.rpm
-# ...
+# Argh, Docker will not resolve anything outside of the docker execution content; so no /home/user/build-source
+# I'll copy the build sources and then delete when done
+mkdir ./tmp
+cp "$buildSourceDir"/* ./tmp
 
 # Builder docker image
-#sudo docker build --rm=true -t "mightycontent/centos6-ml-mysql" .
+sudo docker build --rm=true -t "mightycontent/centos6-ml-mysql" .
+
+# Clean-up copy of build-source
+rm -r ./tmp
 
 # Run docker image - export port 8000, 8001, 8002 for ML 2022 for ssh (pwd 123456)
-#docket run -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 2022:2022 mightycontent/centos6-ml-mysql
+#docker run -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 2022:2022 mightycontent/centos6-ml-mysql
