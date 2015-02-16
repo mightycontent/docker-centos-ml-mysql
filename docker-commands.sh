@@ -38,7 +38,7 @@ then
 fi
 
 # Argh, Docker will not resolve anything outside of the docker execution content; so no /home/user/build-source
-# I'll copy the build sources and then delete when done
+# I'll copy the build sources and then delete then when done
 mkdir ./tmp
 cp "$buildSourceDir"/* ./tmp
 

@@ -40,7 +40,14 @@ ADD supervisord.conf /etc/supervisord.conf
 ENV PATH $PATH:/usr/local/mysql/bin:/usr/local/mysql/scripts
 
 WORKDIR /usr/local/mysql
+
+# define the locations of the data volumes
+# mysql data volume
 VOLUME /var/lib/mysql
+
+# marklogic default data directory volume for configuration and log files
+VOLUME /var/opt/MarkLogic
+
  
 WORKDIR /
 # Expose Ports
@@ -51,3 +58,5 @@ EXPOSE 2022 3306 8000 8001 8002
 
 # Run Supervisor
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+
+# docker run -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 2022:2022 -p 3306 mightycontent/centos6-ml-mysql
