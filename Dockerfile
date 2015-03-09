@@ -22,13 +22,21 @@ ADD tmp/MarkLogic-7.0-4.3.x86_64.rpm /tmp/MarkLogic-7.0-4.3.x86_64.rpm
 RUN yum -y install /tmp/MarkLogic-7.0-4.3.x86_64.rpm
 RUN rm /tmp/MarkLogic-7.0-4.3.x86_64.rpm
 
+# MYSQL INSTALL
 WORKDIR /tmp
 # installs from mysql public repo
 ADD tmp/mysql-community-release-el6-5.noarch.rpm /tmp/mysql-community-release-el6-5.noarch.rpm
-    yum localinstall mysql-community-release-el6-5.noarch.rpm -y && \
-#    yum install mysql-community-server -y && \
-    rm /tmp/mysql-community-release-el6-5.noarch.rpm && \
-    yum clean all
+RUN yum -y localinstall /tmp/mysql-community-release-el6-5.noarch.rpm && \
+yum -y install mysql-community-server && \
+rm /tmp/mysql-community-release-el6-5.noarch.rpm && \
+yum clean all
+# Add MySQL scripts
+ADD run.sh /run.sh
+RUN chmod 755 /*.sh
+# Exposed ENV for mysql
+ENV MYSQL_ROOT_PASSWORD topdog
+ENV MYSQL_USER admin
+ENV MYSQL_PASS changeme
 
 # Setup supervisor
 ADD https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py /tmp/ez_setup.py
@@ -57,6 +65,8 @@ WORKDIR /
 EXPOSE 2022 3306 8000 8001 8002
 
 # Run Supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+# CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+# CMD ["/run.sh"]
+# CMD ["/bin/bash"]
 
 # docker run -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 2022:2022 -p 3306 mightycontent/centos6-ml-mysql
