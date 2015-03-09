@@ -77,11 +77,8 @@ EOSQL
 
     # shutdown mysql
     mysqladmin -uroot -p"$MYSQL_ROOT_PASSWORD" shutdown
-
-
-else
-    # start supervisord
-    echo "Starting supervisord"
-    /usr/bin/supervisord -c /etc/supervisord.conf
 fi
+# start supervisord
+echo "Starting supervisord"
+/usr/bin/supervisord -c /etc/supervisord.conf
 echo "Done run.sh"

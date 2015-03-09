@@ -66,7 +66,7 @@ EXPOSE 2022 3306 8000 8001 8002
 
 # Run Supervisor
 # CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
-# CMD ["/run.sh"]
+CMD ["/run.sh"]
 # CMD ["/bin/bash"]
 
-# docker run -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 2022:2022 -p 3306 mightycontent/centos6-ml-mysql
+# docker run -i -t -p 8000:8000 -p 8001:8001 -p 8002:8002 -p 2022:2022 -p 3306 mightycontent/centos6-ml-mysql
